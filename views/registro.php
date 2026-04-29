@@ -7,7 +7,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'/>
 </head>
 <body>
-    <form method="post">
+    <form action="../controllers/controladorRegistro.php" method="post">
         <fieldset>
             <legend>Registro</legend>
             <label for="nom">Nombre: </label>
