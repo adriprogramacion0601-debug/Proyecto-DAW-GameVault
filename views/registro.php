@@ -20,6 +20,7 @@
             <input type="email" id="em" name="Email"/>
             <br/>
             <input type="reset" value="Borrar datos"/>
+            <input type="submit" value="Enviar datos"/>
         </fieldset>
     </form>
 </body>
