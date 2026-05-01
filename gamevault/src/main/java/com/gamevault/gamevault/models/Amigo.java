@@ -1,6 +1,5 @@
 package com.gamevault.gamevault.models;
 
-import com.gamevault.gamevault.estado;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,8 +31,11 @@ public class Amigo {
     private Usuario amigo;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado", nullable = false)
-    private estado estado;
+    private EstadoAmistad estado;
+
+    public enum EstadoAmistad {
+        pendiente, aceptado
+    }
 
     @Column(name = "fecha")
     private LocalDateTime fecha;

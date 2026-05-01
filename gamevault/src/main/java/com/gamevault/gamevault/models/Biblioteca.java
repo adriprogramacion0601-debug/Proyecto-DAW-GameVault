@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "Biblioteca")
@@ -27,9 +27,14 @@ public class Biblioteca {
     @JoinColumn(name = "juego_id", referencedColumnName = "id", nullable = false)
     private Juego juego;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
-    private String estado;
+    private EstadoJuego estado;
+
+    public enum EstadoJuego {
+        jugando, completado, pendiente, abandonado
+    }
 
     @Column(name = "fecha_añadido")
-    private LocalDateTime fechaAñadido;
+    private LocalDate fechaAnadido;
 }

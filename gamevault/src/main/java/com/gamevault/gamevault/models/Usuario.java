@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -36,7 +36,10 @@ public class Usuario {
     private String biografia;
 
     @Column(name = "fecha_registro")
-    private LocalDateTime fechaRegistro;
+    private LocalDate fechaRegistro;
+
+    @Column(nullable = false)
+    private String rol = "USER";
 
     // Un usuario tiene MUCHAS reseñas
     @OneToMany(mappedBy = "usuario")

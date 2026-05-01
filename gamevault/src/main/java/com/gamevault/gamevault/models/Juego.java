@@ -20,7 +20,7 @@ public class Juego {
     private Long id;
 
     @Column(name = "rawg_id")
-    private Long rawgId;
+    private Integer rawgId;
 
     @Column(name = "titulo", nullable = false)
     private String titulo;
