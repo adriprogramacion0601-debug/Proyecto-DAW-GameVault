@@ -3,10 +3,8 @@ services:
     build: ./gamevault
     ports:
       - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/gamevault
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: secreto
+    env_file:
+      - .env
     depends_on:
       - database
 
@@ -21,11 +19,10 @@ services:
     image: postgres:16
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_DB: gamevault
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secreto
+    env_file:
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
 volumes:
-  postgres_data:
+  postgres_data:
