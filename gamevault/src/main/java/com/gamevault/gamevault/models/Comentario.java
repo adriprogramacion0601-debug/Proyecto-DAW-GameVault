@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,11 +26,11 @@ public class Comentario {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "reseña_id", referencedColumnName = "id", nullable = false)
-    private Resenas reseña;
+    private Resenas resena;
 
     @Column(name = "contenido", columnDefinition = "TEXT", nullable = false)
     private String contenido;
 
     @Column(name = "fecha")
-    private LocalDateTime fecha;
+    private LocalDate fecha;
 }
