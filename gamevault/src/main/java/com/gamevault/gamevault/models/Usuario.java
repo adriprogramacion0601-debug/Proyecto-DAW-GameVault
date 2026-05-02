@@ -1,5 +1,6 @@
 package com.gamevault.gamevault.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class Usuario {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -42,6 +44,7 @@ public class Usuario {
     private String rol = "USER";
 
     // Un usuario tiene MUCHAS reseñas
+    @JsonIgnore
     @OneToMany(mappedBy = "usuario")
     private List<Resenas> resenas;
 }

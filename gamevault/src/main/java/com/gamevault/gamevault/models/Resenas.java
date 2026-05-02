@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "Reseñas")
@@ -20,14 +20,14 @@ public class Resenas {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "puntuacion", precision = 3, scale = 1, nullable = false)
-    private BigDecimal puntuacion;
+    @Column(name = "puntuacion", nullable = false)
+    private Integer puntuacion;
 
     @Column(name = "comentario", columnDefinition = "TEXT")
     private String comentario;
 
     @Column(name = "fecha")
-    private LocalDateTime fecha;
+    private LocalDate fecha;
 
     // Cada reseña pertenece a UN usuario
     @ManyToOne
