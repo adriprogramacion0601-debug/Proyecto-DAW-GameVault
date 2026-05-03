@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { GamepadIcon } from 'lucide-react';
 
 export default function Register() {
     const [form, setForm] = useState({ nombre: '', email: '', password: '' });
@@ -27,73 +31,81 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-            <div className="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md">
-                <h1 className="text-3xl font-bold text-white mb-2 text-center">GameVault</h1>
-                <p className="text-gray-400 text-center mb-6">Crea tu cuenta</p>
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+            <Link to="/" className="absolute top-8 left-8 flex items-center gap-2 font-bold text-2xl group">
+                <GamepadIcon className="h-8 w-8 text-primary group-hover:scale-110 transition-transform" />
+                <span className="bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
+                  GameVault
+                </span>
+            </Link>
 
-                {error && (
-                    <div className="bg-red-500 text-white p-3 rounded-lg mb-4 text-sm">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="text-gray-300 text-sm mb-1 block">Nombre</label>
-                        <input
-                            type="text"
-                            name="nombre"
-                            value={form.nombre}
-                            onChange={handleChange}
-                            className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="Tu nombre"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label className="text-gray-300 text-sm mb-1 block">Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={form.email}
-                            onChange={handleChange}
-                            className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="tu@email.com"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label className="text-gray-300 text-sm mb-1 block">Contraseña</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={form.password}
-                            onChange={handleChange}
-                            className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
-                    >
-                        {loading ? 'Registrando...' : 'Registrarse'}
-                    </button>
+            <Card className="w-full max-w-md shadow-2xl border-primary/10">
+                <CardHeader className="space-y-1">
+                    <CardTitle className="text-3xl font-bold text-center">Crea tu cuenta</CardTitle>
+                    <CardDescription className="text-center">
+                        Únete a GameVault para gestionar tu colección
+                    </CardDescription>
+                </CardHeader>
+                <form onSubmit={handleSubmit}>
+                    <CardContent className="space-y-4">
+                        {error && (
+                            <div className="bg-destructive/15 text-destructive p-3 rounded-md text-sm font-medium">
+                                {error}
+                            </div>
+                        )}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                Nombre
+                            </label>
+                            <Input
+                                type="text"
+                                name="nombre"
+                                value={form.nombre}
+                                onChange={handleChange}
+                                placeholder="Tu nombre"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                Correo Electrónico
+                            </label>
+                            <Input
+                                type="email"
+                                name="email"
+                                value={form.email}
+                                onChange={handleChange}
+                                placeholder="tu@email.com"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                Contraseña
+                            </label>
+                            <Input
+                                type="password"
+                                name="password"
+                                value={form.password}
+                                onChange={handleChange}
+                                placeholder="••••••••"
+                                required
+                            />
+                        </div>
+                    </CardContent>
+                    <CardFooter className="flex flex-col space-y-4">
+                        <Button type="submit" className="w-full" disabled={loading}>
+                            {loading ? 'Registrando...' : 'Crear Cuenta'}
+                        </Button>
+                        <div className="text-sm text-center text-muted-foreground">
+                            ¿Ya tienes cuenta?{' '}
+                            <Link to="/login" className="text-primary hover:underline font-semibold">
+                                Iniciar sesión
+                            </Link>
+                        </div>
+                    </CardFooter>
                 </form>
-
-                <p className="text-gray-400 text-center mt-6 text-sm">
-                    ¿Ya tienes cuenta?{' '}
-                    <Link to="/login" className="text-purple-400 hover:underline">
-                        Inicia sesión
-                    </Link>
-                </p>
-            </div>
+            </Card>
         </div>
     );
 }

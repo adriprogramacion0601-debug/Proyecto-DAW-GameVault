@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ListPlus, Trash2, Search, Plus, Image as ImageIcon, Lock, Globe } from 'lucide-react';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Listas() {
     const [listas, setListas] = useState([]);
@@ -18,7 +24,7 @@ export default function Listas() {
                 const res = await api.get('/listas');
                 setListas(res.data);
             } catch (err) {
-                console.error('Error al cargar listas');
+                toast.error('Error al cargar tus listas');
             } finally {
                 setLoading(false);
             }
@@ -33,13 +39,14 @@ export default function Listas() {
             setListas(prev => [...prev, res.data]);
             setForm({ nombre: '', descripcion: '', publica: 'true' });
             setMostrarForm(false);
+            toast.success('Lista creada exitosamente');
         } catch (err) {
-            console.error('Error al crear lista');
+            toast.error('Error al crear la lista');
         }
     };
 
     const eliminarLista = async (listaId) => {
-        if (!confirm('¿Eliminar esta lista?')) return;
+        if (!confirm('¿Eliminar esta lista permanentemente?')) return;
         try {
             await api.delete(`/listas/${listaId}`);
             setListas(prev => prev.filter(l => l.id !== listaId));
@@ -47,8 +54,9 @@ export default function Listas() {
                 setListaSeleccionada(null);
                 setJuegosLista([]);
             }
+            toast.info('Lista eliminada');
         } catch (err) {
-            console.error('Error al eliminar lista');
+            toast.error('Error al eliminar la lista');
         }
     };
 
@@ -60,7 +68,7 @@ export default function Listas() {
             const res = await api.get(`/listas/${lista.id}/juegos`);
             setJuegosLista(res.data);
         } catch (err) {
-            console.error('Error al cargar juegos de la lista');
+            toast.error('Error al cargar los juegos de la lista');
         }
     };
 
@@ -68,9 +76,9 @@ export default function Listas() {
         try {
             await api.delete(`/listas/${listaId}/juegos/${juegoId}`);
             setJuegosLista(prev => prev.filter(e => e.juego.id !== juegoId));
+            toast.info('Juego retirado de la lista');
         } catch (err) {
-            console.error('Error al eliminar juego de la lista', err.response?.data);
-            alert('Error al eliminar el juego de la lista');
+            toast.error('Error al eliminar el juego de la lista');
         }
     };
 
@@ -80,8 +88,9 @@ export default function Listas() {
         try {
             const res = await api.get(`/juegos/buscar?nombre=${busquedaLista}`);
             setResultadosBusqueda(res.data.results || []);
+            if (res.data.results?.length === 0) toast.info('No se encontraron resultados');
         } catch (err) {
-            console.error('Error al buscar');
+            toast.error('Error en la búsqueda');
         }
     };
 
@@ -96,228 +105,238 @@ export default function Listas() {
             setJuegosLista(res.data);
             setResultadosBusqueda([]);
             setBusquedaLista('');
+            toast.success('Juego añadido a la lista');
         } catch (err) {
-            alert('El juego ya está en esta lista');
+            toast.warning('El juego ya se encuentra en esta lista');
         }
     };
 
     return (
-        <div className="min-h-screen bg-white">
-            <Navbar />
-
-            <div className="max-w-6xl mx-auto px-6 py-10">
-                <div className="flex items-center justify-between mb-2">
-                    <h1 className="text-4xl font-bold text-gray-900">Mis Listas</h1>
-                    <button
-                        onClick={() => setMostrarForm(!mostrarForm)}
-                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-                    >
-                        + Nueva lista
-                    </button>
+        <div className="space-y-8 animate-in fade-in duration-500 pb-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border/50 pb-6">
+                <div>
+                    <h1 className="text-4xl font-extrabold tracking-tight mb-2">Mis Listas</h1>
+                    <p className="text-muted-foreground text-lg">Organiza tus juegos en colecciones personalizadas</p>
                 </div>
-                <p className="text-gray-500 mb-8">Organiza tus juegos en listas personalizadas</p>
+                <Button onClick={() => setMostrarForm(!mostrarForm)} className="shadow-md hover:shadow-primary/20 transition-all hover:-translate-y-0.5">
+                    <ListPlus className="w-4 h-4 mr-2" />
+                    Nueva Lista
+                </Button>
+            </div>
 
-                {/* Formulario nueva lista */}
+            <AnimatePresence>
                 {mostrarForm && (
-                    <form onSubmit={crearLista} className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-8">
-                        <h2 className="text-gray-900 font-semibold mb-4">Nueva lista</h2>
-                        <div className="flex flex-col gap-3">
-                            <input
-                                type="text"
-                                placeholder="Nombre de la lista"
-                                value={form.nombre}
-                                onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                                className="bg-white border border-gray-200 text-gray-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                required
-                            />
-                            <input
-                                type="text"
-                                placeholder="Descripción (opcional)"
-                                value={form.descripcion}
-                                onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
-                                className="bg-white border border-gray-200 text-gray-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            />
-                            <select
-                                value={form.publica}
-                                onChange={(e) => setForm({ ...form, publica: e.target.value })}
-                                className="bg-white border border-gray-200 text-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            >
-                                <option value="true">Pública</option>
-                                <option value="false">Privada</option>
-                            </select>
-                            <div className="flex gap-3">
-                                <button
-                                    type="submit"
-                                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg text-sm transition"
-                                >
-                                    Crear lista
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setMostrarForm(false)}
-                                    className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-6 py-2 rounded-lg text-sm transition"
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                    <motion.div
+                        initial={{ opacity: 0, height: 0, y: -20 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -20 }}
+                        className="overflow-hidden"
+                    >
+                        <Card className="border-primary/30 bg-primary/5 shadow-inner">
+                            <CardHeader>
+                                <CardTitle>Crear nueva lista</CardTitle>
+                                <CardDescription>Dale un nombre y descripción a tu nueva colección.</CardDescription>
+                            </CardHeader>
+                            <form onSubmit={crearLista}>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Nombre de la lista</label>
+                                        <Input
+                                            value={form.nombre}
+                                            onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                                            required
+                                            placeholder="Ej: Juegos para el verano"
+                                            className="bg-background"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Descripción (opcional)</label>
+                                        <Input
+                                            value={form.descripcion}
+                                            onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+                                            placeholder="Agrega detalles sobre esta lista"
+                                            className="bg-background"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium">Visibilidad</label>
+                                        <select
+                                            value={form.publica}
+                                            onChange={(e) => setForm({ ...form, publica: e.target.value })}
+                                            className="w-full bg-background border border-input text-foreground text-sm rounded-md px-3 py-2 focus:ring-2 focus:ring-primary focus:outline-none"
+                                        >
+                                            <option value="true">Pública (Cualquiera puede verla)</option>
+                                            <option value="false">Privada (Solo tú puedes verla)</option>
+                                        </select>
+                                    </div>
+                                </CardContent>
+                                <CardFooter className="gap-2">
+                                    <Button type="submit">Guardar Lista</Button>
+                                    <Button type="button" variant="ghost" onClick={() => setMostrarForm(false)}>Cancelar</Button>
+                                </CardFooter>
+                            </form>
+                        </Card>
+                    </motion.div>
                 )}
+            </AnimatePresence>
 
-                {loading ? (
-                    <div className="text-center text-gray-400 mt-20">Cargando...</div>
-                ) : listas.length === 0 ? (
-                    <div className="text-center text-gray-400 mt-20">
-                        <p className="text-xl mb-2">No tienes listas todavía</p>
-                        <p className="text-sm">Crea tu primera lista con el botón de arriba</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Panel izquierdo — listas */}
-                        <div className="flex flex-col gap-3">
-                            {listas.map((lista) => (
-                                <div
-                                    key={lista.id}
-                                    className={`border rounded-xl p-4 cursor-pointer transition ${
-                                        listaSeleccionada?.id === lista.id
-                                            ? 'border-purple-400 bg-purple-50'
-                                            : 'border-gray-200 bg-white hover:border-gray-300'
-                                    }`}
+            {loading ? (
+                <div className="flex justify-center p-12"><span className="animate-pulse text-muted-foreground text-lg">Cargando listas...</span></div>
+            ) : listas.length === 0 ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-24 text-muted-foreground border-2 border-dashed rounded-3xl border-muted bg-card/20">
+                    <ListPlus className="w-16 h-16 opacity-20 mb-4" />
+                    <p className="text-2xl font-semibold text-foreground">No tienes listas</p>
+                    <p className="mt-2 text-lg">Empieza creando tu primera colección</p>
+                </motion.div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    {/* Sidebar de Listas */}
+                    <div className="md:col-span-4 lg:col-span-3 space-y-3">
+                        {listas.map((lista, idx) => (
+                            <motion.div 
+                                initial={{ opacity: 0, x: -20 }} 
+                                animate={{ opacity: 1, x: 0 }} 
+                                transition={{ delay: idx * 0.05 }}
+                                key={lista.id}
+                            >
+                                <Card 
+                                    className={`cursor-pointer transition-all hover:border-primary/50 bg-card/60 backdrop-blur-sm ${listaSeleccionada?.id === lista.id ? 'border-primary ring-1 ring-primary shadow-md shadow-primary/10 bg-card' : ''}`}
                                     onClick={() => verJuegosLista(lista)}
                                 >
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <h3 className="text-gray-900 font-semibold">{lista.nombre}</h3>
-                                            {lista.descripcion && (
-                                                <p className="text-gray-500 text-sm mt-1">{lista.descripcion}</p>
-                                            )}
-                                            <span className={`text-xs mt-2 inline-block px-2 py-1 rounded-full ${
-                                                lista.publica
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-gray-100 text-gray-600'
-                                            }`}>
-                                                {lista.publica ? 'Pública' : 'Privada'}
-                                            </span>
+                                    <CardHeader className="p-4 pb-2">
+                                        <div className="flex justify-between items-start gap-2">
+                                            <CardTitle className="text-base leading-tight font-semibold line-clamp-2">
+                                                {lista.nombre}
+                                            </CardTitle>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 -mt-1 -mr-1"
+                                                onClick={(e) => { e.stopPropagation(); eliminarLista(lista.id); }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); eliminarLista(lista.id); }}
-                                            className="text-gray-400 hover:text-red-500 text-sm transition"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Panel derecho — juegos de la lista */}
-                        <div>
-                            {listaSeleccionada ? (
-                                <div>
-                                    <h2 className="text-gray-900 font-semibold text-lg mb-4">
-                                        {listaSeleccionada.nombre}
-                                    </h2>
-
-                                    {/* Buscador para añadir juegos */}
-                                    <form onSubmit={buscarParaLista} className="flex gap-2 mb-4">
-                                        <input
-                                            type="text"
-                                            value={busquedaLista}
-                                            onChange={(e) => setBusquedaLista(e.target.value)}
-                                            placeholder="Buscar juego para añadir..."
-                                            className="flex-1 bg-gray-100 text-gray-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        />
-                                        <button
-                                            type="submit"
-                                            className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-2 rounded-lg transition"
-                                        >
-                                            Buscar
-                                        </button>
-                                    </form>
-
-                                    {/* Resultados búsqueda */}
-                                    {resultadosBusqueda.length > 0 && (
-                                        <div className="border border-gray-200 rounded-xl mb-4 max-h-48 overflow-y-auto">
-                                            {resultadosBusqueda.map((juego) => (
-                                                <div
-                                                    key={juego.id}
-                                                    className="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-100 last:border-0"
-                                                >
-                                                    {juego.background_image ? (
-                                                        <img
-                                                            src={juego.background_image}
-                                                            alt={juego.name}
-                                                            className="w-12 h-9 object-cover rounded"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-12 h-9 bg-gray-100 rounded" />
-                                                    )}
-                                                    <p className="flex-1 text-gray-900 text-sm truncate">{juego.name}</p>
-                                                    <button
-                                                        onClick={() => anadirJuegoALista(juego.id)}
-                                                        className="text-purple-600 hover:text-purple-800 text-sm font-medium transition"
-                                                    >
-                                                        + Añadir
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {/* Juegos de la lista */}
-                                    {juegosLista.length === 0 ? (
-                                        <p className="text-gray-400 text-sm">Esta lista no tiene juegos todavía.</p>
-                                    ) : (
-                                        <div className="flex flex-col gap-3">
-                                            {juegosLista.map((entrada) => (
-                                                <div
-                                                    key={entrada.id}
-                                                    className="flex items-center gap-3 border border-gray-200 rounded-xl p-3"
-                                                >
-                                                    {entrada.juego?.imagen ? (
-                                                        <img
-                                                            src={entrada.juego.imagen}
-                                                            alt={entrada.juego.titulo}
-                                                            className="w-16 h-12 object-cover rounded-lg"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-16 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                                                            <svg width="24" height="17" viewBox="0 0 28 20" fill="none">
-                                                                <rect x="0" y="4" width="28" height="14" rx="5" fill="#d1d5db"/>
-                                                                <rect x="0" y="1" width="8" height="5" rx="2" fill="#d1d5db"/>
-                                                                <rect x="20" y="1" width="8" height="5" rx="2" fill="#d1d5db"/>
-                                                            </svg>
-                                                        </div>
-                                                    )}
-                                                    <div className="flex-1">
-                                                        <p className="text-gray-900 text-sm font-medium truncate">
-                                                            {entrada.juego?.titulo}
-                                                        </p>
-                                                        <p className="text-gray-400 text-xs">{entrada.juego?.genero}</p>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => {
-                                                            console.log('listaId:', listaSeleccionada.id, 'juegoId:', entrada.juego.id);
-                                                            eliminarJuegoDeLista(listaSeleccionada.id, entrada.juego.id);
-                                                        }}
-                                                        className="text-gray-400 hover:text-red-500 transition text-sm"
-                                                    >
-                                                        ✕
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="text-center text-gray-400 mt-10">
-                                    <p className="text-sm">Selecciona una lista para ver sus juegos</p>
-                                </div>
-                            )}
-                        </div>
+                                        <CardDescription className="line-clamp-2 text-xs mt-1">
+                                            {lista.descripcion || 'Sin descripción'}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="p-4 pt-2">
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider bg-secondary text-secondary-foreground px-2 py-0.5 rounded-sm">
+                                            {lista.publica ? <Globe className="w-3 h-3 text-primary" /> : <Lock className="w-3 h-3 text-muted-foreground" />}
+                                            {lista.publica ? 'Pública' : 'Privada'}
+                                        </span>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        ))}
                     </div>
-                )}
-            </div>
+
+                    {/* Contenido de la Lista */}
+                    <div className="md:col-span-8 lg:col-span-9">
+                        <AnimatePresence mode="wait">
+                            {listaSeleccionada ? (
+                                <motion.div 
+                                    key={listaSeleccionada.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                >
+                                    <Card className="border-border/50 shadow-sm bg-card/50 backdrop-blur-md">
+                                        <CardHeader className="border-b border-border/50 bg-muted/20 relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                                            <CardTitle className="text-3xl relative z-10">{listaSeleccionada.nombre}</CardTitle>
+                                            <CardDescription className="text-base relative z-10">{listaSeleccionada.descripcion}</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="p-6 space-y-6">
+                                            <form onSubmit={buscarParaLista} className="flex gap-2">
+                                                <div className="relative flex-1 group">
+                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                    <Input
+                                                        value={busquedaLista}
+                                                        onChange={(e) => setBusquedaLista(e.target.value)}
+                                                        placeholder="Buscar juego para añadir..."
+                                                        className="pl-9 bg-background focus-visible:ring-primary"
+                                                    />
+                                                </div>
+                                                <Button type="submit">Buscar</Button>
+                                            </form>
+
+                                            {resultadosBusqueda.length > 0 && (
+                                                <div className="border border-border/50 rounded-lg divide-y divide-border/50 overflow-hidden max-h-[300px] overflow-y-auto bg-card shadow-inner">
+                                                    {resultadosBusqueda.map((juego) => (
+                                                        <div key={juego.id} className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors">
+                                                            {juego.background_image ? (
+                                                                <img src={juego.background_image} alt={juego.name} className="w-12 h-12 object-cover rounded shadow-sm" />
+                                                            ) : (
+                                                                <div className="w-12 h-12 bg-muted rounded flex items-center justify-center"><ImageIcon className="w-4 h-4 opacity-50" /></div>
+                                                            )}
+                                                            <span className="flex-1 font-medium text-sm line-clamp-1">{juego.name}</span>
+                                                            <Button size="sm" variant="secondary" onClick={() => anadirJuegoALista(juego.id)}>
+                                                                <Plus className="w-4 h-4 mr-1" /> Añadir
+                                                            </Button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            <div className="pt-4">
+                                                <h3 className="font-semibold text-xl mb-4 flex items-center gap-2">
+                                                    Juegos en la lista <span className="text-primary text-sm font-bold bg-primary/10 px-2 py-0.5 rounded-full">{juegosLista.length}</span>
+                                                </h3>
+                                                
+                                                {juegosLista.length === 0 ? (
+                                                    <div className="text-center py-16 bg-muted/20 rounded-xl border border-dashed border-border/50">
+                                                        <p className="text-muted-foreground">Esta lista está vacía.</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid gap-3">
+                                                        {juegosLista.map((entrada, idx) => (
+                                                            <motion.div 
+                                                                initial={{ opacity: 0, x: 20 }} 
+                                                                animate={{ opacity: 1, x: 0 }} 
+                                                                transition={{ delay: idx * 0.05 }}
+                                                                key={entrada.id} 
+                                                                className="flex items-center gap-4 border border-border/50 rounded-xl p-3 hover:border-primary/40 hover:shadow-sm transition-all bg-card/80 group"
+                                                            >
+                                                                <Link to={`/juego/${entrada.juego.rawgId}`} className="contents">
+                                                                    {entrada.juego?.imagen ? (
+                                                                        <img src={entrada.juego.imagen} alt={entrada.juego.titulo} className="w-16 h-16 object-cover rounded-lg shadow-sm" />
+                                                                    ) : (
+                                                                        <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center"><ImageIcon className="w-6 h-6 opacity-30" /></div>
+                                                                    )}
+                                                                    <div className="flex-1 min-w-0 cursor-pointer">
+                                                                        <p className="font-semibold text-base truncate group-hover:text-primary transition-colors">{entrada.juego?.titulo}</p>
+                                                                        <p className="text-sm text-muted-foreground truncate">{entrada.juego?.genero || 'Sin género'}</p>
+                                                                    </div>
+                                                                </Link>
+                                                                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => eliminarJuegoDeLista(listaSeleccionada.id, entrada.juego.id)}>
+                                                                    <Trash2 className="w-5 h-5" />
+                                                                </Button>
+                                                            </motion.div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            ) : (
+                                <motion.div 
+                                    key="empty"
+                                    initial={{ opacity: 0 }} 
+                                    animate={{ opacity: 1 }} 
+                                    className="h-full flex flex-col items-center justify-center py-32 text-muted-foreground border border-dashed rounded-3xl border-muted bg-card/20"
+                                >
+                                    <ListPlus className="w-16 h-16 opacity-20 mb-4" />
+                                    <p className="text-xl">Selecciona una lista en el panel lateral</p>
+                                    <p className="text-sm mt-2">Podrás añadir juegos y ver su contenido</p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

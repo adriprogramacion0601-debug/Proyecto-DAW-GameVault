@@ -20,6 +20,12 @@ public class RawgController {
         return rawg.buscarJuegos(nombre);
     }
 
+    // Obtener detalles completos de un juego de RAWG
+    @GetMapping(value = "/{rawgId}", produces = "application/json")
+    public ResponseEntity<String> obtenerJuego(@PathVariable Integer rawgId) {
+        return ResponseEntity.ok(rawg.obtenerJuego(rawgId));
+    }
+
     // Guardar juego de RAWG en mí BD
     @PostMapping("/guardar/{rawgId}")
     public ResponseEntity<Juego> guardarJuego(@PathVariable Integer rawgId) {
