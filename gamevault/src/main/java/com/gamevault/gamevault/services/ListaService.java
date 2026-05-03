@@ -54,6 +54,10 @@ public class ListaService {
             throw new RuntimeException("No tienes permiso para elminar esta lista");
         }
 
+        // Primero elimina los juegos de la lista
+        List<Lista_juego> juegos = lista_juegoRepository.findByListaId(listaId);
+        lista_juegoRepository.deleteAll(juegos);
+
         listaRepository.delete(lista);
     }
 
@@ -87,8 +91,12 @@ public class ListaService {
 
     // Eliminar juego de lista
     public void eliminarJuegoDeLista(String email, Integer listaId, Integer juegoId) {
+        System.out.println(">>> email: " + email + " listaId: " + listaId + " juegoId: " + juegoId);
+
         Lista lista = listaRepository.findById(listaId)
                 .orElseThrow(() -> new RuntimeException("Lista no encontrada"));
+
+        System.out.println(">>> lista usuario email: " + lista.getUsuario().getEmail());
 
         if (!lista.getUsuario().getEmail().equals(email)) {
             throw new RuntimeException("No tienes permiso para modificar esta lista");
@@ -96,7 +104,7 @@ public class ListaService {
 
         Lista_juego entrada = lista_juegoRepository.findByListaId(listaId)
                 .stream()
-                .filter(lj -> false)
+                .filter(lj -> lj.getJuego().getId().intValue() == juegoId.intValue())
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Juego no encontrado en la lista"));
 

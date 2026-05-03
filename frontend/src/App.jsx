@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import Biblioteca from './pages/Biblioteca';
+import Listas from "./pages/Listas.jsx";
 
 function App() {
     return (
@@ -14,14 +15,13 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/" element={
-                        <PrivateRoute>
-                            <Home />
-                        </PrivateRoute>
+                        <PrivateRoute><Home /></PrivateRoute>
                     } />
                     <Route path="/biblioteca" element={
-                        <PrivateRoute>
-                            <Biblioteca />
-                        </PrivateRoute>
+                        <PrivateRoute><Biblioteca /></PrivateRoute>
+                    } />
+                    <Route path="/listas" element={
+                        <PrivateRoute><Listas /></PrivateRoute>
                     } />
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
