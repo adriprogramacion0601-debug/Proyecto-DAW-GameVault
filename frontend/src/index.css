@@ -4,6 +4,13 @@
 
 @layer base {
   :root {
+    --accent-background: #fcfbfb;
+    --accent-bg: white;
+    --accent-border: var(--accent-border);
+    --text-h: 16px;
+    --social-bg: #ffffff;
+    --shadow: rgba(0, 0, 0, 0.3);
+
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
 
