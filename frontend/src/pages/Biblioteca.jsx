@@ -4,11 +4,11 @@ import api from '../services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Image as ImageIcon, Gamepad2, Search, ArrowDownAZ, Star, MessageSquare } from 'lucide-react';
+import { Trash2, Image as ImageIcon, Gamepad2, Search, Star, MessageSquare } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const ESTADOS = ['jugando', 'completado', 'pendiente', 'abandonado'];
 
